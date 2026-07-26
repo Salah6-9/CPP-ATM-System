@@ -40,7 +40,7 @@ enum enQuickWithdrawOptions {
 void ShowAtmMainMenu(stClient Client);
 void RunTheChoice(enAtmMenuOptions choise,stClient Client);
 enAtmMenuOptions GetMenuChoice();
-
+void ShowBalanceScreen(const stClient& Client);
 // ======================================================================================
 
 stClient ConvertLinetoRecord(string line, string delm = " ")
@@ -137,19 +137,19 @@ void LoginScreen()
 void ShowAtmMainMenu(stClient Client)
 {
     system("clear");
-    cout << "==================== Client Management System ====================\n";
+    cout << "==================== ATM System ====================\n";
     cout << "[1]. Quick Withdraw\n";
     cout << "[2]. Normal Withdraw.\n";
     cout << "[3]. Deposit\n";
     cout << "[4]. Check Balance.\n";
     cout << "[5]. Logout\n";
-    cout << "==================================================================\n";
+    cout << "====================================================\n";
     RunTheChoice(GetMenuChoice(),Client);
 
 }
 enAtmMenuOptions GetMenuChoice()
 {
-    int choice = MyLib::Read_num_in_range("Enter your choice (1-8): ", 1, 5);
+    int choice = MyLib::Read_num_in_range("Enter your choice (1-5): ", 1, 5);
     return static_cast<enAtmMenuOptions>(choice);
 }
 void GoToMainMenue(stClient Client)
@@ -164,9 +164,10 @@ void RunTheChoice(enAtmMenuOptions choise,stClient Client)
     system("clear");
     switch (choise)
     {
-    case enAtmMenuOptions::QuickWithdraw:
+
+    case enAtmMenuOptions::CheckBalance:
     {
-        // QuickWithdraw(ClientFileName);
+        ShowBalanceScreen(Client);
         GoToMainMenue(Client);
         break;
     }
@@ -176,4 +177,11 @@ void RunTheChoice(enAtmMenuOptions choise,stClient Client)
         break;
     }
 }
+//-------------------------------atm-check-balance--------------------------------------------
 
+void ShowBalanceScreen(const stClient& Client){
+    cout << "\n-----------------------------------\n";
+    cout << "\tCheck Balance";
+    cout << "\n-----------------------------------\n"; 
+    cout <<"\nYour Balance is : "<<Client.AccountBalance;
+}
