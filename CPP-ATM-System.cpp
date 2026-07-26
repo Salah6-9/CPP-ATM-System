@@ -36,18 +36,13 @@ enum enQuickWithdrawOptions {
     , Exit = 9
 };
 
-void ShowAtmMainMenu(stClient Client)
-{
-    system("clear");
-    cout << "==================== Client Management System ====================\n";
-    cout << "[1]. Quick Withdraw\n";
-    cout << "[2]. Normal Withdraw.\n";
-    cout << "[3]. Deposit\n";
-    cout << "[4]. Check Balance.\n";
-    cout << "[5]. Logout\n";
-    cout << "==================================================================\n";
+// ================================Declaration=======================================
+void ShowAtmMainMenu(stClient Client);
+void RunTheChoice(enAtmMenuOptions choise,stClient Client);
+enAtmMenuOptions GetMenuChoice();
 
-}
+// ======================================================================================
+
 stClient ConvertLinetoRecord(string line, string delm = " ")
 {
     vector<string> splitedValue = MyLib::SplitEachWordInString(line, delm);
@@ -137,3 +132,48 @@ void LoginScreen()
     } while (Denid);
     ShowAtmMainMenu(Client);
 }
+
+//-------------------------------atm-main-menu--------------------------------------------
+void ShowAtmMainMenu(stClient Client)
+{
+    system("clear");
+    cout << "==================== Client Management System ====================\n";
+    cout << "[1]. Quick Withdraw\n";
+    cout << "[2]. Normal Withdraw.\n";
+    cout << "[3]. Deposit\n";
+    cout << "[4]. Check Balance.\n";
+    cout << "[5]. Logout\n";
+    cout << "==================================================================\n";
+    RunTheChoice(GetMenuChoice(),Client);
+
+}
+enAtmMenuOptions GetMenuChoice()
+{
+    int choice = MyLib::Read_num_in_range("Enter your choice (1-8): ", 1, 5);
+    return static_cast<enAtmMenuOptions>(choice);
+}
+void GoToMainMenue(stClient Client)
+{
+
+    MyLib::PauseAndClearScreen();
+    ShowAtmMainMenu(Client);
+}
+
+void RunTheChoice(enAtmMenuOptions choise,stClient Client)
+{
+    system("clear");
+    switch (choise)
+    {
+    case enAtmMenuOptions::QuickWithdraw:
+    {
+        // QuickWithdraw(ClientFileName);
+        GoToMainMenue(Client);
+        break;
+    }
+
+    case enAtmMenuOptions::Logout:
+        LoginScreen();
+        break;
+    }
+}
+
