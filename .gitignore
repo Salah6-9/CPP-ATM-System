@@ -1,0 +1,14 @@
+# Executables and Libraries
+*.out
+*.exe
+*.o
+*.a
+CPP-ATM-System
+0
+
+# VS Code settings & Temp files
+.vscode/
+tempCodeRunnerFile*
+
+# System files
+.DS_Store
