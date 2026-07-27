@@ -39,6 +39,8 @@ void RunTheChoice(enAtmMenuOptions choise, stClient &Client);
 enAtmMenuOptions GetMenuChoice();
 void ShowBalanceScreen(stClient &Client);
 void ShowQuickWithdrawScreen(stClient& Client);
+void ShowNormalWithdrawScreen(stClient& Client);
+
 // ======================================================================================
 
 bool AuthenticateClient(const stClient &Client, const vector<stClient> &vClient, stClient &FounClient, int &position)
@@ -124,6 +126,13 @@ void RunTheChoice(enAtmMenuOptions choise, stClient &Client)
         GoToMainMenue(Client);
         break;
     }
+    case enAtmMenuOptions::NormalWithdraw:
+    {
+        ShowNormalWithdrawScreen(Client);
+        GoToMainMenue(Client);
+        break;
+    }
+
     case enAtmMenuOptions::CheckBalance:
     {
         ShowBalanceScreen(Client);
@@ -190,7 +199,7 @@ void HandleAccountWithdrawal(string ClientFileName, vector<stClient> &vClient,st
         cout << "\nInsufficient balance.";
     }
 }
-void Withdraw(string ClientFileName, stClient &Client)
+void Withdraw(string ClientFileName, stClient &Client,double Amount)
 {
     int position = -1;
     stClient stFoundClient;
@@ -201,8 +210,7 @@ void Withdraw(string ClientFileName, stClient &Client)
     {
         return;
     }
-    double Amount = 0;
-    Amount = GetAmountFromChoice(GetQuickWithdrawChoice());
+    
     if (Amount != 0)
     {
 
@@ -225,8 +233,32 @@ void ShowQuickWithdrawScreen(stClient& Client)
     cout << "[8]. 1000\n";
     cout << "[9]. Exit\n";
     cout << "====================================================\n";
-    Withdraw(ClientFileName, Client);
+    double Amount = 0;
+    Amount = GetAmountFromChoice(GetQuickWithdrawChoice());
+    Withdraw(ClientFileName, Client,Amount);
 }
+//-------------------------------atm-NormalWithdraw--------------------------------------------
+int GetAmountMultupleOf5(){
+    int amount=0;
+    do
+    {
+        amount = MyIO::ReadPositiveNumber("Enter an amount Multiple Of 5's? ");  
+        if(!(amount % 5 == 0))
+            cout << "\nAmount must be a multiple of 5.\n";    
+    } while (!(amount % 5 == 0));
+    return amount;
+}
+
+void ShowNormalWithdrawScreen(stClient& Client)
+{
+    system("clear");
+    cout << "==================== NormalWithdraw ====================\n";
+    cout <<"\t\nYour Balance is: "<<Client.AccountBalance;
+    double amount = GetAmountMultupleOf5();
+    Withdraw(ClientFileName, Client,amount);
+}
+
+
 
 int main()
 
