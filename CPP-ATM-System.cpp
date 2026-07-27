@@ -16,7 +16,7 @@ enum enAtmMenuOptions
 {
     QuickWithdraw = 1,
     NormalWithdraw = 2,
-    Deposit = 3,
+    DepositOption = 3,
     CheckBalance = 4,
     Logout = 5
 };
@@ -40,6 +40,7 @@ enAtmMenuOptions GetMenuChoice();
 void ShowBalanceScreen(stClient &Client);
 void ShowQuickWithdrawScreen(stClient& Client);
 void ShowNormalWithdrawScreen(stClient& Client);
+void ShowDepositScreen(stClient& Client);
 
 // ======================================================================================
 
@@ -77,8 +78,8 @@ void LoginScreen()
     stClient Found;
     do
     {
-        Client.NbrAcount = MyIO::ReadString("Enter Account Number Please: ");
-        Client.PinCode = MyIO::ReadString("Enter A Pin Code Please: ");
+        Client.NbrAcount = MyIO::ReadString("\nEnter Account Number Please: ");
+        Client.PinCode = MyIO::ReadString("\nEnter A Pin Code Please: ");
 
         Denid = !IsClientAuthorized(Client, ClientFileName, Found);
         if (Denid)
@@ -132,7 +133,12 @@ void RunTheChoice(enAtmMenuOptions choise, stClient &Client)
         GoToMainMenue(Client);
         break;
     }
-
+    case enAtmMenuOptions::DepositOption:
+    {
+        ShowDepositScreen(Client);
+        GoToMainMenue(Client);
+        break;
+    }
     case enAtmMenuOptions::CheckBalance:
     {
         ShowBalanceScreen(Client);
@@ -184,40 +190,71 @@ bool CanWithdrawAmount(stClient& Client, double Amount)
 {
     return (Amount <= Client.AccountBalance) ;
 }
-void HandleAccountWithdrawal(string ClientFileName, vector<stClient> &vClient,stClient& Client, bool isFound, double Amount, int position)
+void HandleAccountTransaction(string ClientFileName,
+                              vector<stClient>& vClient,
+                              stClient& Client,
+                              bool isFound,
+                              double Amount,
+                              int position,
+                              bool IsWithdraw)
 {
-
-
-    if (CanWithdrawAmount(vClient[position], Amount))
-    {
-
-            MyBank::DepositToAccount(ClientFileName, vClient, isFound, -Amount, position);
-        Client = vClient[position];  
-    }
-    else
+    if (IsWithdraw && !CanWithdrawAmount(vClient[position], Amount))
     {
         cout << "\nInsufficient balance.";
-    }
-}
-void Withdraw(string ClientFileName, stClient &Client,double Amount)
-{
-    int position = -1;
-    stClient stFoundClient;
-    vector<stClient> vClient = MyBank::LoadClientsDataFromFile(ClientFileName);
-
-    bool isFound = MyBank::SearchClientInVector(Client.NbrAcount, vClient, stFoundClient, position);
-    if (!isFound)
-    {
         return;
     }
-    
-    if (Amount != 0)
-    {
 
-        MyBank::PrintClientRecord(vClient[position]);
-        HandleAccountWithdrawal(ClientFileName, vClient,Client, isFound, Amount, position);
-    }
+    double TransactionAmount = IsWithdraw ? -Amount : Amount;
+
+    MyBank::DepositToAccount(
+        ClientFileName,
+        vClient,
+        isFound,
+        TransactionAmount,
+        position);
+
+    Client = vClient[position];
 }
+
+
+void ProcessTransaction(string ClientFileName,
+                        stClient& Client,
+                        double Amount,
+                        bool IsWithdraw)
+{
+    int Position = -1;
+    stClient FoundClient;
+
+    vector<stClient> vClient =
+        MyBank::LoadClientsDataFromFile(ClientFileName);
+
+    bool IsFound = MyBank::SearchClientInVector(
+        Client.NbrAcount,
+        vClient,
+        FoundClient,
+        Position);
+
+    if (!IsFound || Amount == 0)
+        return;
+
+    MyBank::PrintClientRecord(vClient[Position]);
+
+    HandleAccountTransaction(
+        ClientFileName,
+        vClient,
+        Client,
+        IsFound,
+        Amount,
+        Position,
+        IsWithdraw);
+}
+void Withdraw(string ClientFileName,
+              stClient& Client,
+              double Amount)
+{
+    ProcessTransaction(ClientFileName, Client, Amount, true);
+}
+
 
 void ShowQuickWithdrawScreen(stClient& Client)
 {
@@ -235,20 +272,25 @@ void ShowQuickWithdrawScreen(stClient& Client)
     cout << "====================================================\n";
     double Amount = 0;
     Amount = GetAmountFromChoice(GetQuickWithdrawChoice());
-    Withdraw(ClientFileName, Client,Amount);
+    ProcessTransaction(ClientFileName, Client,Amount,true);
 }
 //-------------------------------atm-NormalWithdraw--------------------------------------------
 int GetAmountMultupleOf5(){
     int amount=0;
     do
     {
-        amount = MyIO::ReadPositiveNumber("Enter an amount Multiple Of 5's? ");  
+        amount = MyIO::ReadPositiveNumber("\nEnter an amount Multiple Of 5's? ");  
         if(!(amount % 5 == 0))
             cout << "\nAmount must be a multiple of 5.\n";    
     } while (!(amount % 5 == 0));
     return amount;
 }
-
+void Deposit(string ClientFileName,
+             stClient& Client,
+             double Amount)
+{
+    ProcessTransaction(ClientFileName, Client, Amount, false);
+}
 void ShowNormalWithdrawScreen(stClient& Client)
 {
     system("clear");
@@ -257,7 +299,17 @@ void ShowNormalWithdrawScreen(stClient& Client)
     double amount = GetAmountMultupleOf5();
     Withdraw(ClientFileName, Client,amount);
 }
+//-------------------------------atm-Deposit--------------------------------------------
 
+void ShowDepositScreen(stClient& Client)
+{
+    system("clear");
+    cout << "==================== Deposit ====================\n";
+    cout <<"\t\nYour Balance is: "<<Client.AccountBalance;
+    double amount = MyIO::ReadPositiveDoubleNumber("\nEnter an amount  To Deposit please? ");
+    Deposit(ClientFileName,Client,amount);
+
+}
 
 
 int main()
