@@ -306,7 +306,7 @@ void ShowDepositScreen(stClient& Client)
     system("clear");
     cout << "==================== Deposit ====================\n";
     cout <<"\t\nYour Balance is: "<<Client.AccountBalance;
-    double amount = MyIO::ReadPositiveDoubleNumber("\nEnter an amount  To Deposit please? ");
+    double amount = MyIO::ReadPositiveDbleNumber("\nEnter an amount  To Deposit please? ");
     Deposit(ClientFileName,Client,amount);
 
 }
